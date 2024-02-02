@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.table {
+  font-family: Arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #b9b9b9;
+}
+
+.table th {
+  background-color: #f8f8f8;
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.table>tbody>tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table>tbody>tr:hover {
+  background-color: #d3d3d3;
+}
+
+.table>tbody>td:first-child {
+  font-weight: bold;
+  color: #333;
+}
+
+
+
+
+.file-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.file-input {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.file-input input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-input-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #4caf4fa9;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.file-input-label:hover {
+  background-color: #45a049;
+}
+
+.file-input-success .file-input-label {
+  background-color: #4CAF50;
+}
+
+
+.file-input-success .file-input-checkmark {
+  display: inline-flex;
+  margin-left: 10px;
+  color: #fff;
+}
+
+.file-input-checkmark {
+  display: none;
+}
+
+/* tr {
+  position: relative;
+}
+
+td > tr::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: rgb(0, 0, 0);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+} */
