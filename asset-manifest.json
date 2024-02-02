@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/check-guests-app/static/css/main.8ebc8f85.css",
+    "main.js": "/check-guests-app/static/js/main.ec9fc860.js",
+    "index.html": "/check-guests-app/index.html",
+    "main.8ebc8f85.css.map": "/check-guests-app/static/css/main.8ebc8f85.css.map",
+    "main.ec9fc860.js.map": "/check-guests-app/static/js/main.ec9fc860.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ebc8f85.css",
+    "static/js/main.ec9fc860.js"
+  ]
+}
