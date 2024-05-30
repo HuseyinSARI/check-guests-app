@@ -12,18 +12,26 @@ import AltRouteIcon from "@mui/icons-material/AltRoute";
 
 import { DataGrid } from "@mui/x-data-grid";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 function App() {
   const [xmlFile, setXmlFile] = useState(null);
   const [xlsFile, setXlsFile] = useState(null);
   const [routingFile, setRoutingFile] = useState(null);
+  const [polisRaporuFile, setPolisRaporuFile] = useState(null);
+
 
   const [isKbsFileSet, setIsKbsFileSet] = useState(false);
   const [isOperaFileSet, setIsOperaFileSet] = useState(false);
   const [isRoutingFileSet, setIsRoutingFileSet] = useState(false);
+  const [isPolisRaporuFileSet, setIsPolisRaporuFileSet] = useState(false);
 
   const [operaJSON, setOperaJSON] = useState(null);
   const [kbsJSON, setKbsJSON] = useState(null);
   const [routingJSON, setRoutingJSON] = useState(null);
+  const [polisRaporuJSON, setPolisRaporuJSON] = useState(null);
 
   const [operaNames, setOperaNames] = useState([]);
   const [kbsNames, setKbsNames] = useState([]);
@@ -36,6 +44,8 @@ function App() {
   const [operaControlData, setOperaControlData] = useState([]);
 
   const parser = new XMLParser();
+
+  // const notify = () => toast("Wow so easy!");
 
   const columns = [
     {
@@ -115,6 +125,10 @@ function App() {
     if (routingFile != null) handleRoutingFileRead();
   }, [routingFile]);
 
+  useEffect(() => {
+    if (polisRaporuFile != null) handlePolisRaporuFileRead();
+  }, [polisRaporuFile]);
+
   // opera dosyasından isim ve oda numalarını alıyoruz.
   useEffect(() => {
     if (operaJSON != null) {
@@ -151,7 +165,7 @@ function App() {
 
         if (
           status_code !== "CKOT" &&
-          status_code !== "CXL"  &&
+          status_code !== "CXL" &&
           routingJSON[index].ROOM_NO <= 1000
         ) {
           tempObj = {
@@ -171,10 +185,10 @@ function App() {
               const trxString = routeObj.TRX_STRING || '';
 
               if (trxString.startsWith('Routed from')) {
-                let str = trxString.substring('Routed from'.length).trim() ;
+                let str = trxString.substring('Routed from'.length).trim();
                 tempObj.routed_from += extractInfoBasedOnType(str) + " | "
               } else if (trxString.startsWith('Routed to')) {
-                let str = trxString.substring('Routed to'.length).trim() ;
+                let str = trxString.substring('Routed to'.length).trim();
                 tempObj.routed_to += extractInfoBasedOnType(str) + " | "
               }
 
@@ -217,7 +231,7 @@ function App() {
   }
 
   // routing dosyasını opera control datasına ekliyoruz
-  useEffect( () => {
+  useEffect(() => {
     const updatedOperaControlData = [...operaControlData];
 
     routingNames.forEach((routingItem, i) => {
@@ -244,7 +258,7 @@ function App() {
 
     setOperaControlData(updatedOperaControlData);
 
-  },[routingNames]) 
+  }, [routingNames])
 
 
   // opera dosyasında gece kontrolleri için olan kısımı alıyoruz
@@ -278,8 +292,8 @@ function App() {
           let isMultipleComment = false;
           if (
             Array.isArray(
-              operaJSON[index].LIST_G_COMMENT_RESV_NAME_ID
-                .G_COMMENT_RESV_NAME_ID,
+              operaJSON[index]?.LIST_G_COMMENT_RESV_NAME_ID
+                ?.G_COMMENT_RESV_NAME_ID,
             )
           ) {
             isMultipleComment = true;
@@ -289,13 +303,13 @@ function App() {
             tempObjControl.comment =
               operaJSON[
                 index
-              ].LIST_G_COMMENT_RESV_NAME_ID.G_COMMENT_RESV_NAME_ID[0].RES_COMMENT;
+              ].LIST_G_COMMENT_RESV_NAME_ID?.G_COMMENT_RESV_NAME_ID[0]?.RES_COMMENT;
             // console.log("çoklu yorum");
           } else {
             tempObjControl.comment =
               operaJSON[
                 index
-              ].LIST_G_COMMENT_RESV_NAME_ID.G_COMMENT_RESV_NAME_ID.RES_COMMENT;
+              ].LIST_G_COMMENT_RESV_NAME_ID?.G_COMMENT_RESV_NAME_ID?.RES_COMMENT;
             // console.log("tek yorum");
           }
         } else {
@@ -308,25 +322,51 @@ function App() {
           operaJSON[index].ROOM,
         );
         tempObjControl.olan_kisi_sayisi = olan_kisi_sayisi;
-
         // yazılan kişi sayısı
         let yazilan_kisi_sayisi;
+        let intYazilan_kisi_sayisi
         if (operaJSON[index].CHILDREN == 0) {
           yazilan_kisi_sayisi = operaJSON[index].ADULTS;
+          intYazilan_kisi_sayisi = operaJSON[index].ADULTS;
         } else {
           yazilan_kisi_sayisi =
             operaJSON[index].ADULTS.toString() +
             "/" +
             operaJSON[index].CHILDREN.toString();
+
+          intYazilan_kisi_sayisi = operaJSON[index].ADULTS + operaJSON[index].CHILDREN;
         }
         tempObjControl.yazilan_kisi_sayisi = yazilan_kisi_sayisi;
+        tempObjControl.intYazilan_kisi_sayisi = intYazilan_kisi_sayisi;
 
         tempArrayControl.push(tempObjControl);
       }
+
+
+
       // console.log(tempArrayControl);
       setOperaControlData(tempArrayControl);
     }
   }, [operaJSON, operaNames]);
+
+
+  ////////////////////////////////////
+  ////////////////////////////////////
+  ////////////////////////////////////
+  ////////////////////////////////////
+  // useEffect(() => {
+  //   if (operaControlData != null) {
+
+  //     operaControlData.forEach(item => {
+  //       if (item.olan_kisi_sayisi != item.intYazilan_kisi_sayisi) {
+  //         toast.error(item.oda_no +" - "+ item.olan_kisi_sayisi +" - "+ item.intYazilan_kisi_sayisi );
+  //       }
+  //     });
+
+
+  //   }    
+  // }, [operaControlData]);
+
 
   function getPersonCountByRoom(operaNames, roomNumber) {
     const filteredNames = operaNames.filter(
@@ -430,6 +470,12 @@ function App() {
     setIsRoutingFileSet(true);
   };
 
+  const handlePolisRaporuFileChange = (event) => {
+    const file = event.target.files[0];
+    setPolisRaporuFile(file);
+    setIsPolisRaporuFileSet(true);
+  };
+
   const handleXmlFileRead = () => {
     if (xmlFile) {
       const reader = new FileReader();
@@ -456,6 +502,21 @@ function App() {
       reader.readAsText(routingFile);
     }
   };
+
+  const handlePolisRaporuFileRead = () => {
+    if (polisRaporuFile) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const polisRaporuContent = event.target.result;
+        let jObj = parser.parse(polisRaporuContent);
+        setPolisRaporuJSON(
+          jObj.P2203_POLISRAPORU.LIST_G_VERILENODANO.G_VERILENODANO,
+        );
+      };
+      reader.readAsText(polisRaporuFile);
+    }
+  };
+
 
   const handleXlsFileRead = () => {
     if (xlsFile) {
@@ -567,20 +628,81 @@ function App() {
     return mergeDizisi;
   }
 
+  function tcPasKontrol() {
+    console.log(" polis json", polisRaporuJSON);
+
+    polisRaporuJSON.forEach(person => {
+
+      // Doğum tarihinin boş, null veya undefined olup olmadığını kontrol et
+      if (!person.DOGUMTARIHI) {
+        toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", DOĞUM TARİHİ BOŞ");
+      }
+
+      if (!person.KIMLIKBELGESITURU) {
+        // Kimlik belgesi türü boş, null veya undefined ise geçersiz kabul et
+        toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", TC-PAS BOŞ");
+      } else if (person.KIMLIKBELGESITURU === "TCKN") {
+        // Kimlik türü TCKN ise, kimlik numarasının 11 haneli olup olmadığını kontrol et
+        const isValidTCKN = /^[0-9]{11}$/.test(person.KIMLIKSERINO);
+
+        if (!isValidTCKN) {
+          toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", TC 11 Hane Değil");
+        }
+
+        const isValidNationality = person.UYRUGU === "TC";
+        if (!isValidNationality) {
+          toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", Uyruğu TC değil");
+
+        }
+      } else if (person.KIMLIKBELGESITURU === "PAS") {
+        // Kimlik türü PAS ise, kimlik numarasının 11 haneli sayı olmaması gerektiğini kontrol et
+        const isValidPAS = !/^[0-9]{11}$/.test(person.KIMLIKSERINO);
+        if (!isValidPAS) {
+          toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", TC kimlik no olabilir");
+        }
+
+        const isInvalidResidenceOrNationality = person.IKAMETADRESI === "Turkey" || person.UYRUGU === "TC";
+        if (isInvalidResidenceOrNationality) {
+          toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", PAS-UYRUK yanlış");
+        }
+
+        if(!person.KIMLIKSERINO){
+          toast.error("ODA: " + person.VERILENODANO + " | " + person.ADI + ", Kimlik seri no boş");
+        }
+        
+
+      }
+    });
+  }
+
   const handleClick = (event) => {
     // console.log(kbsDiff);
     // console.log(operaJSON, kbsJSON);
     // console.log("kbsJSON :", kbsJSON);
 
-    console.log("operajson :", operaJSON);
-    console.log("opera names :", operaNames);
+    // console.log("operajson :", operaJSON);
+    // console.log("opera names :", operaNames);
 
     // console.log("kbsNames :", kbsNames);
     // console.log("mergedDiffArray :", mergedDiffArray);
 
-    console.log("operaControlData :", operaControlData);
-    console.log("routingJSON :", routingJSON);
-    console.log("routingNames :", routingNames);
+    // console.log("operaControlData :", operaControlData);
+    // console.log("routingJSON :", routingJSON);
+    // console.log("routingNames :", routingNames);
+
+    let errorflag = 0;
+    operaControlData.forEach(item => {
+      if (item.olan_kisi_sayisi != item.intYazilan_kisi_sayisi) {
+        toast.error(item.oda_no + " kişi sayısı farklı");
+        errorflag += 1;
+      }
+    });
+    if (errorflag == 0) {
+      toast.success("kişi sayısında hata yok", { autoClose: 5000 })
+    }
+
+    tcPasKontrol();
+    // console.log("polis raporu json : ", polisRaporuJSON);
   };
 
   return (
@@ -635,6 +757,25 @@ function App() {
             <AltRouteIcon className="file-input-icon" />
             Routing Dosyası
             {isRoutingFileSet && <Check className="file-input-checkmark" />}
+          </label>
+          <br />
+          {/* <label>{isOperaFileSet && operaNames?.length + " kişi"}</label> */}
+        </div>
+        {/* polis raporu */}
+        <div
+          className={`file-input ${isPolisRaporuFileSet ? "file-input-success" : ""}`}
+        >
+          <input
+            type="file"
+            id="file4"
+            accept=".xml"
+            onChange={handlePolisRaporuFileChange}
+          />
+
+          <label className="file-input-label">
+            <AltRouteIcon className="file-input-icon" />
+            Polis Raporu
+            {isPolisRaporuFileSet && <Check className="file-input-checkmark" />}
           </label>
           <br />
           {/* <label>{isOperaFileSet && operaNames?.length + " kişi"}</label> */}
@@ -711,10 +852,21 @@ function App() {
               disableRowSelectionOnClick
               disablePagination
               disableColumnMenu
+
             />
           </Box>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        theme="light"
+      />
     </div>
   );
 }
